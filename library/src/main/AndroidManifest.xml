@@ -1,0 +1,25 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+	package="com.artifex.mupdfdemo">
+
+	<application
+		android:hardwareAccelerated="true">
+		<activity
+			android:name="com.artifex.mupdfdemo.ChoosePDFActivity"
+			android:theme="@android:style/Theme.Light">
+		</activity>
+		<activity
+			android:name="com.artifex.mupdfdemo.MuPDFActivity">
+		</activity>
+		<activity
+			android:name="com.artifex.mupdfdemo.OutlineActivity"
+			android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen"
+			android:label="@string/outline_title">
+		</activity>
+		<activity
+			android:name="com.artifex.mupdfdemo.PrintDialogActivity"
+			android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen"
+			android:label="@string/print">
+		</activity>
+	</application>
+
+</manifest>
