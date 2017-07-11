@@ -12,7 +12,7 @@ android {
         versionCode 1070100
         versionName "1.7a"
         ndk {
-            abiFilters "armeabi-v7a", "x86", "armeabi", "mips"
+            abiFilters "armeabi-v7a", "armeabi"
         }
     }
     buildTypes {
