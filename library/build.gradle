@@ -11,6 +11,9 @@ android {
         targetSdkVersion 22
         versionCode 1070100
         versionName "1.7a"
+        ndk {
+            abiFilters "armeabi-v7a", "x86", "armeabi", "mips"
+        }
     }
     buildTypes {
         release {
