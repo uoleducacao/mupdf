@@ -4,7 +4,7 @@ apply plugin: 'com.github.dcendents.android-maven'
 group='com.github.uoleducacao'
 android {
     compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    buildToolsVersion "25.0.2"
 
     defaultConfig {
         minSdkVersion 15
@@ -22,7 +22,6 @@ android {
         }
     }
     sourceSets.main {
-	jniLibs.srcDirs = ['libs']
         jniLibs.srcDir 'src/main/jniLibs'
         
     }
