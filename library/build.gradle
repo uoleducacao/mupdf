@@ -4,7 +4,7 @@ apply plugin: 'com.github.dcendents.android-maven'
 group='com.github.uoleducacao'
 android {
     compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    buildToolsVersion "25.0.2"
 
     defaultConfig {
         minSdkVersion 15
@@ -12,7 +12,7 @@ android {
         versionCode 1070100
         versionName "1.7a"
         ndk {
-            abiFilters "armeabi-v7a", "armeabi"
+            abiFilters "arm64-v8a", "arm64", "armeabi-v7a", "armeabi"
         }
     }
     buildTypes {
@@ -22,7 +22,6 @@ android {
         }
     }
     sourceSets.main {
-	jniLibs.srcDirs = ['libs']
         jniLibs.srcDir 'src/main/jniLibs'
         
     }
