@@ -786,7 +786,7 @@ public class ReaderView
 
         requestLayout();
 
-        if(mAdapter.getCount() == 1)
+        if(onLastPageReach != null && mAdapter.getCount() == 1)
             onLastPageReach.reached();
 
     }
