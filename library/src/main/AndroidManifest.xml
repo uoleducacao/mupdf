@@ -8,7 +8,8 @@
 			android:theme="@android:style/Theme.Light">
 		</activity>
 		<activity
-			android:name="com.artifex.mupdfdemo.MuPDFActivity">
+			android:name="com.artifex.mupdfdemo.MuPDFActivity"
+			android:theme="@android:style/Theme.Black">
 		</activity>
 		<activity
 			android:name="com.artifex.mupdfdemo.OutlineActivity"
