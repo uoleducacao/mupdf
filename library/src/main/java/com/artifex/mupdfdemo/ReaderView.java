@@ -87,8 +87,9 @@ public class ReaderView
         if (simpleOnGestureListener != null)
             return simpleOnGestureListener.onDoubleTap(motionEvent);
 
-        if (getContext() instanceof Activity)
-            ((Activity) getContext()).onBackPressed();
+        //We don't need this
+//        if (getContext() instanceof Activity)
+//            ((Activity) getContext()).onBackPressed();
 
         return false;
     }
