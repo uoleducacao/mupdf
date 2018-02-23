@@ -3,6 +3,7 @@ package com.artifex.mupdfdemo;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
@@ -18,6 +19,7 @@ import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,6 +34,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.glidebitmappool.GlideBitmapPool;
 
 import java.io.InputStream;
 import java.util.concurrent.Executor;
@@ -62,7 +66,7 @@ public class MuPDFActivity extends Activity implements FilePicker.FilePickerSupp
     private final int FILEPICK_REQUEST = 2;
     private MuPDFCore core;
     private String mFileName;
-    private MuPDFReaderView mDocView;
+    protected MuPDFReaderView mDocView;
     private boolean mButtonsVisible;
     private EditText mPasswordView;
     private SeekBar mPageSlider;
@@ -241,6 +245,8 @@ public class MuPDFActivity extends Activity implements FilePicker.FilePickerSupp
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        GlideBitmapPool.clearMemory();
+        GlideBitmapPool.trimMemory(ComponentCallbacks2.TRIM_MEMORY_COMPLETE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
@@ -629,7 +635,14 @@ public class MuPDFActivity extends Activity implements FilePicker.FilePickerSupp
     }
 
     public void onDestroy() {
+        Log.d("MuPdfActivity", "onDestroy()");
+        GlideBitmapPool.clearMemory();
+        GlideBitmapPool.trimMemory(ComponentCallbacks2.TRIM_MEMORY_COMPLETE);
         if (mDocView != null) {
+            if(mDocView.getAdapter() instanceof MuPDFPageAdapter) {
+                MuPDFPageAdapter adapter = (MuPDFPageAdapter) mDocView.getAdapter();
+                adapter.releaseBitmap();
+            }
             mDocView.applyToChildren(new ReaderView.ViewMapper() {
                 void applyToView(View view) {
                     ((MuPDFView) view).releaseBitmaps();
@@ -643,6 +656,7 @@ public class MuPDFActivity extends Activity implements FilePicker.FilePickerSupp
             mAlertTask = null;
         }
         core = null;
+        mDocView = null;
         super.onDestroy();
     }
 
@@ -1059,10 +1073,14 @@ public class MuPDFActivity extends Activity implements FilePicker.FilePickerSupp
             alert.show();
         } else {
             Intent i = new Intent();
-            i.putExtra(CURRENT_PAGE, mDocView.getDisplayedViewIndex());
-            setResult(RESULT_OK, i);
+            setResult(i);
             finish();
         }
+    }
+
+    protected void setResult(Intent intent) {
+        intent.putExtra(CURRENT_PAGE, mDocView.getDisplayedViewIndex());
+        setResult(RESULT_OK, intent);
     }
 
     @Override

@@ -8,12 +8,13 @@ import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import com.glidebitmappool.GlideBitmapPool;
 
 public class MuPDFPageAdapter extends BaseAdapter {
 	private final Context mContext;
 	private final FilePicker.FilePickerSupport mFilePickerSupport;
 	private final MuPDFCore mCore;
-	private final SparseArray<PointF> mPageSizes = new SparseArray<PointF>();
+	private final SparseArray<PointF> mPageSizes = new SparseArray<>();
 	private       Bitmap mSharedHqBm;
 
 	public MuPDFPageAdapter(Context c, FilePicker.FilePickerSupport filePickerSupport, MuPDFCore core) {
@@ -37,8 +38,9 @@ public class MuPDFPageAdapter extends BaseAdapter {
 	public View getView(final int position, View convertView, ViewGroup parent) {
 		final MuPDFPageView pageView;
 		if (convertView == null) {
-			if (mSharedHqBm == null || mSharedHqBm.getWidth() != parent.getWidth() || mSharedHqBm.getHeight() != parent.getHeight())
-				mSharedHqBm = Bitmap.createBitmap(parent.getWidth(), parent.getHeight(), Bitmap.Config.ARGB_8888);
+			if (mSharedHqBm == null || mSharedHqBm.getWidth() != parent.getWidth() || mSharedHqBm.getHeight() != parent.getHeight()) {
+				mSharedHqBm = GlideBitmapPool.getBitmap(parent.getWidth(), parent.getHeight(), Bitmap.Config.ARGB_8888);
+			}
 
 			pageView = new MuPDFPageView(mContext, mFilePickerSupport, mCore, new Point(parent.getWidth(), parent.getHeight()), mSharedHqBm);
 		} else {
@@ -75,5 +77,12 @@ public class MuPDFPageAdapter extends BaseAdapter {
 			sizingTask.execute((Void)null);
 		}
 		return pageView;
+	}
+
+	void releaseBitmap() {
+		if(mSharedHqBm != null) {
+			mSharedHqBm.recycle();
+			mSharedHqBm = null;
+		}
 	}
 }

@@ -1,11 +1,7 @@
 package com.artifex.mupdfdemo;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -16,13 +12,19 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.glidebitmappool.GlideBitmapPool;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
 // Make our ImageViews opaque to optimize redraw
-class OpaqueImageView extends ImageView {
+class OpaqueImageView extends android.support.v7.widget.AppCompatImageView {
 
 	public OpaqueImageView(Context context) {
 		super(context);
@@ -58,9 +60,7 @@ class TextSelector {
 			if (line[0].bottom > mSelectBox.top && line[0].top < mSelectBox.bottom)
 				lines.add(line);
 
-		Iterator<TextWord[]> it = lines.iterator();
-		while (it.hasNext()) {
-			TextWord[] line = it.next();
+		for (TextWord[] line : lines) {
 			boolean firstLine = line[0].top < mSelectBox.top;
 			boolean lastLine = line[0].bottom > mSelectBox.bottom;
 			float start = Float.NEGATIVE_INFINITY;
@@ -101,7 +101,6 @@ public abstract class PageView extends ViewGroup {
 	protected     float     mSourceScale;
 
 	private       ImageView mEntire; // Image rendered at minimum zoom
-	private       Bitmap    mEntireBm;
 	private       Matrix    mEntireMat;
 	private       AsyncTask<Void,Void,TextWord[][]> mGetText;
 	private       AsyncTask<Void,Void,LinkInfo[]> mGetLinkInfo;
@@ -130,7 +129,6 @@ public abstract class PageView extends ViewGroup {
 		mContext    = c;
 		mParentSize = parentSize;
 		setBackgroundColor(BACKGROUND_COLOR);
-		mEntireBm = Bitmap.createBitmap(parentSize.x, parentSize.y, Config.ARGB_8888);
 		mPatchBm = sharedHqBm;
 		mEntireMat = new Matrix();
 	}
@@ -199,8 +197,8 @@ public abstract class PageView extends ViewGroup {
 	}
 
 	public void releaseBitmaps() {
+		Log.d("MuPdf PageView", "releaseBitmaps()");
 		reinit();
-		mEntireBm = null;
 		mPatchBm = null;
 	}
 
@@ -240,8 +238,7 @@ public abstract class PageView extends ViewGroup {
 		// Calculate scaled size that fits within the screen limits
 		// This is the size at minimum zoom
 		mSourceScale = Math.min(mParentSize.x/size.x, mParentSize.y/size.y);
-		Point newSize = new Point((int)(size.x*mSourceScale), (int)(size.y*mSourceScale));
-		mSize = newSize;
+		mSize = new Point((int)(size.x*mSourceScale), (int)(size.y*mSourceScale));
 
 		mEntire.setImageBitmap(null);
 		mEntire.invalidate();
@@ -262,6 +259,7 @@ public abstract class PageView extends ViewGroup {
 		mGetLinkInfo.execute();
 
 		// Render the page in the background
+		final Bitmap mEntireBm = GlideBitmapPool.getBitmap(mParentSize.x, mParentSize.y, Bitmap.Config.ARGB_8888);
 		mDrawEntire = new CancellableAsyncTask<Void, Void>(getDrawPageTask(mEntireBm, mSize.x, mSize.y, 0, 0, mSize.x, mSize.y)) {
 
 			@Override
@@ -363,9 +361,7 @@ public abstract class PageView extends ViewGroup {
 						paint.setStrokeWidth(INK_THICKNESS * scale);
 						paint.setColor(INK_COLOR);
 
-						Iterator<ArrayList<PointF>> it = mDrawing.iterator();
-						while (it.hasNext()) {
-							ArrayList<PointF> arc = it.next();
+						for (ArrayList<PointF> arc : mDrawing) {
 							if (arc.size() >= 2) {
 								Iterator<PointF> iit = arc.iterator();
 								p = iit.next();
@@ -650,6 +646,7 @@ public abstract class PageView extends ViewGroup {
 
 
 		// Render the page in the background
+		final Bitmap mEntireBm = GlideBitmapPool.getBitmap(mParentSize.x, mParentSize.y, Bitmap.Config.ARGB_8888);
 		mDrawEntire = new CancellableAsyncTask<Void, Void>(getUpdatePageTask(mEntireBm, mSize.x, mSize.y, 0, 0, mSize.x, mSize.y)) {
 
 			public void onPostExecute(Void result) {
